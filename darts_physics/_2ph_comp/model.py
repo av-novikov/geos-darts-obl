@@ -67,17 +67,7 @@ class Model(CICDModel):
 
         """ Activate physics """
         self.physics = Compositional(components, phases, self.timer,
-                                     n_points=100, min_p=1, max_p=300, min_z=self.zero/10, max_z=1-self.zero/10)
+                                     n_points=50, min_p=1, max_p=300, min_z=self.zero/10, max_z=1-self.zero/10)
         self.physics.add_property_region(property_container)
         self.engine = self.physics.init_physics(platform='cpu')
         return
-
-    def set_well_controls(self):
-        zero = self.physics.axes_min[1]
-        inj_stream = [1.0 - 2 * zero*10, zero*10]
-        for i, w in enumerate(self.reservoir.wells):
-            if i == 0:
-                # w.control = self.physics.new_rate_gas_inj(20, self.inj_stream)
-                w.control = self.physics.new_bhp_inj(140, inj_stream)
-            else:
-                w.control = self.physics.new_bhp_prod(50)
