@@ -27,7 +27,8 @@ def generate(darts_model, model_folder, physics_folder):
 
     # Set initial conditions
     eps = darts_model.zero
-    p_init = darts_model.initial_values['pressure']
+    bar = 1.e+5
+    p_init = darts_model.initial_values['pressure'] * bar
     t_init = 348.15
     z_init = []
     z_init_sum = np.sum([val for key, val in darts_model.initial_values.items() if key != 'pressure'])
@@ -44,7 +45,7 @@ def generate(darts_model, model_folder, physics_folder):
     # Prescribe simulation and parameters related to output:
     day = 86400.0
     first_ts1 = day
-    first_ts2 = 7 * day
+    first_ts2 = 14 * day
     end1 = 7 * day
     end_final = 365 * day
     output_freq = 30 * day
@@ -56,22 +57,23 @@ def generate(darts_model, model_folder, physics_folder):
     md = 0.9869e-15
     perm = [100 * md, 100 * md, 100 * md]
     porosity = 0.3
-    constitutive_data = ConstitutiveData(ref_poro=porosity, ref_pres=p_init, perm=perm)
+    compr = 1.e-9
+    constitutive_data = ConstitutiveData(ref_poro=porosity, ref_pres=p_init, compr=compr, perm=perm)
 
     geometry_data = []
     boundary_condition_data = []
     # Set injector
-    x_min = coords[:,0] - 0.3 * cell_sizes[:,0]
-    x_max = 1.3 * cell_sizes[:,0]
-    p_inj = 140.
+    x_min = coords[:,0] - 0.01 * cell_sizes[:,0]
+    x_max = 1.01 * cell_sizes[:,0]
+    p_inj = 140. * bar
     geometry_data.append(GeometryData(x_min=x_min, x_max=x_max, name='inj1'))
     boundary_condition_data.append(BoundaryConditionData(pres_val=p_inj, temp_val=t_init,
                                                          comp_val=[1.- 2*eps, eps, eps],
                                                          comp_name=comp_names, region_name=region_name, source_name='inj1'))
     # Set producer
-    x_min = coords[:,-1] - 1.3 * cell_sizes[:,0]
-    x_max = coords[:,-1] + 0.3 * cell_sizes[:,0]
-    p_prod = 50.0
+    x_min = coords[:,-1] - 1.01 * cell_sizes[:,0]
+    x_max = coords[:,-1] + 0.01 * cell_sizes[:,0]
+    p_prod = 50.0 * bar
     geometry_data.append(GeometryData(x_min=x_min, x_max=x_max, name='prd1'))
     boundary_condition_data.append(BoundaryConditionData(pres_val=p_prod, temp_val=t_init,
                                                          comp_val=[1.- 2*eps, eps, eps],
