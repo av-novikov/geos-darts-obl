@@ -7,7 +7,7 @@ from scripts.geosx_obl_operators_object import OBLTableGenerator
 def generate_geos_input_file(darts_folder, model_folder, regenerate_obl_table=True):
     # Load fluid physics from DARTS model
     Model = load_module_from_path(folder_path=physics_folder, module_name='model', entity_name='Model')
-    darts_model = Model()
+    darts_model = Model(n_points=50)
 
     # Generate OBL table and write in a file
     obl_table_file_name = physics_folder + 'obl_table.txt'
