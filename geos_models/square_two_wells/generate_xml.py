@@ -58,7 +58,7 @@ def generate(darts_model, model_folder, physics_folder):
     perm = [100 * md, 100 * md, 100 * md]
     porosity = 0.3
     compr = 1.e-9
-    constitutive_data = ConstitutiveData(ref_poro=porosity, ref_pres=p_init, compr=compr, perm=perm)
+    constitutive_data = [ConstitutiveData(ref_poro=porosity, ref_pres=p_init, compr=compr, perm=perm)]
 
     geometry_data = []
     boundary_condition_data = []
