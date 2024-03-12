@@ -20,17 +20,30 @@ def generate_geos_input_file(darts_folder, model_folder, regenerate_obl_table=Tr
     generate = load_module_from_path(folder_path=model_folder, module_name='generate_xml', entity_name='generate')
     generate(darts_model=darts_model, model_folder=model_folder, physics_folder=darts_folder)
 
-# Generate OBL tables & GEOS input file
-physics_folder = './darts_physics/_2ph_comp/'
-model_folder = './geos_models/square_two_wells/'
-generate_geos_input_file(darts_folder=physics_folder, model_folder=model_folder, regenerate_obl_table=True)
+def run_2ph_2comp_CO2_square_domain():
+    # Generate OBL tables & GEOS input file
+    physics_folder = './darts_physics/_2ph_comp/'
+    model_folder = './geos_models/square_two_wells/'
+    generate_geos_input_file(darts_folder=physics_folder, model_folder=model_folder, regenerate_obl_table=True)
 
-# Run GEOS
-os.chdir(model_folder)
-geos_path = './../../../../geos/build-your-platform-release/bin/geosx'
-run_geos = [geos_path, '-i', 'input_file.xml']
-result = subprocess.run(run_geos, capture_output=False, text=True)
+    os.chdir(model_folder)
+    geos_path = './../../../../geos/build-your-platform-release/bin/geosx'
+    run_geos = [geos_path, '-i', 'input_file.xml']
+    result = subprocess.run(run_geos, capture_output=False, text=True)
 
+def run_spe11():
+    # Generate OBL tables & GEOS input file
+    physics_folder = './darts_physics/fluidflower/'
+    model_folder = './geos_models/spe11c/'
+    generate_geos_input_file(darts_folder=physics_folder, model_folder=model_folder, regenerate_obl_table=True)
+
+    os.chdir(model_folder)
+    geos_path = './../../../../geos/build-your-platform-release/bin/geosx'
+    run_geos = [geos_path, '-i', 'input_file.xml']
+    result = subprocess.run(run_geos, capture_output=False, text=True)
+
+# run_2ph_2comp_CO2_square_domain()
+run_spe11()
 
 
 

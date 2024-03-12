@@ -66,7 +66,7 @@ class XMLFileGEOSXGenerator:
         self.add_numerical_methods()
         self.add_elements_regions()
         if self.constitutive_data is not None:
-            self.add_constitutive()
+            self.add_constitutives()
         self.add_field_specifications()
         if self.table_function_data:
             self.add_table_functions()
@@ -75,26 +75,50 @@ class XMLFileGEOSXGenerator:
         self.full_xml_file = self.base_template(self.full_model)
 
     def add_solvers(self):
-        self.full_model += f'\t<Solvers>\n' \
-                           f'\t\t<ReactiveCompositionalMultiphaseOBL\n' \
-                           f'\t\t\tname="{self.flow_name}"\n' \
-                           f'\t\t\tlogLevel="{self.solvers_data.log_level}"\n' \
-                           f'\t\t\tdiscretization="{self.flow_discretization}"\n' \
-                           f'\t\t\ttargetRegions="{{{", ".join([str(ii) for ii in self.region_name])}}}"\n' \
-                           f'\t\t\tenableEnergyBalance="{self.solvers_data.energy_balance}"\n' \
-                           f'\t\t\tmaxCompFractionChange="{self.solvers_data.max_comp_frac_change}"\n' \
-                           f'\t\t\tnumComponents="{self.solvers_data.num_comp}"\n' \
-                           f'\t\t\tnumPhases="{self.solvers_data.num_phases}"\n' \
-                           f'\t\t\ttransMultExp="{self.solvers_data.trans_mult_exp}"\n' \
-                           f'\t\t\tOBLOperatorsTableFile="{self.obl_table_name}">\n' \
-                           f'\t\t<NonlinearSolverParameters\n' \
-                           f'\t\t\ttimeStepDecreaseFactor="{self.solvers_data.time_step_cut_fac}"\n' \
-                           f'\t\t\tnewtonTol="{self.solvers_data.newton_tolerance}"\n' \
-                           f'\t\t\tnewtonMaxIter="{self.solvers_data.newton_max_iters}"/>\n'\
-                           f'\t\t<LinearSolverParameters\n' \
-                           f'\t\t\tdirectParallel="{self.solvers_data.direct_parallel}"/>\n' \
-                           f'\t\t</ReactiveCompositionalMultiphaseOBL>\n' \
-                           f'\t</Solvers>\n\n'
+        if self.solvers_data.solver_type == 'direct':
+            self.full_model += f'\t<Solvers>\n' \
+                               f'\t\t<ReactiveCompositionalMultiphaseOBL\n' \
+                               f'\t\t\tname="{self.flow_name}"\n' \
+                               f'\t\t\tlogLevel="{self.solvers_data.log_level}"\n' \
+                               f'\t\t\tdiscretization="{self.flow_discretization}"\n' \
+                               f'\t\t\ttargetRegions="{{{", ".join([str(ii) for ii in self.region_name])}}}"\n' \
+                               f'\t\t\tenableEnergyBalance="{self.solvers_data.energy_balance}"\n' \
+                               f'\t\t\tmaxCompFractionChange="{self.solvers_data.max_comp_frac_change}"\n' \
+                               f'\t\t\tnumComponents="{self.solvers_data.num_comp}"\n' \
+                               f'\t\t\tnumPhases="{self.solvers_data.num_phases}"\n' \
+                               f'\t\t\ttransMultExp="{self.solvers_data.trans_mult_exp}"\n' \
+                               f'\t\t\tOBLOperatorsTableFile="{self.obl_table_name}">\n' \
+                               f'\t\t<NonlinearSolverParameters\n' \
+                               f'\t\t\ttimeStepDecreaseFactor="{self.solvers_data.time_step_cut_fac}"\n' \
+                               f'\t\t\tnewtonTol="{self.solvers_data.newton_tolerance}"\n' \
+                               f'\t\t\tnewtonMaxIter="{self.solvers_data.newton_max_iters}"/>\n'\
+                               f'\t\t<LinearSolverParameters\n' \
+                               f'\t\t\tdirectParallel="{self.solvers_data.direct_parallel}"/>\n' \
+                               f'\t\t</ReactiveCompositionalMultiphaseOBL>\n' \
+                               f'\t</Solvers>\n\n'
+        elif self.solvers_data.solver_type == 'iterative':
+            self.full_model += f'\t<Solvers>\n' \
+                               f'\t\t<ReactiveCompositionalMultiphaseOBL\n' \
+                               f'\t\t\tname="{self.flow_name}"\n' \
+                               f'\t\t\tlogLevel="{self.solvers_data.log_level}"\n' \
+                               f'\t\t\tdiscretization="{self.flow_discretization}"\n' \
+                               f'\t\t\ttargetRegions="{{{", ".join([str(ii) for ii in self.region_name])}}}"\n' \
+                               f'\t\t\tenableEnergyBalance="{self.solvers_data.energy_balance}"\n' \
+                               f'\t\t\tmaxCompFractionChange="{self.solvers_data.max_comp_frac_change}"\n' \
+                               f'\t\t\tnumComponents="{self.solvers_data.num_comp}"\n' \
+                               f'\t\t\tnumPhases="{self.solvers_data.num_phases}"\n' \
+                               f'\t\t\ttransMultExp="{self.solvers_data.trans_mult_exp}"\n' \
+                               f'\t\t\tOBLOperatorsTableFile="{self.obl_table_name}">\n' \
+                               f'\t\t<NonlinearSolverParameters\n' \
+                               f'\t\t\ttimeStepDecreaseFactor="{self.solvers_data.time_step_cut_fac}"\n' \
+                               f'\t\t\tnewtonTol="{self.solvers_data.newton_tolerance}"\n' \
+                               f'\t\t\tnewtonMaxIter="{self.solvers_data.newton_max_iters}"/>\n'\
+                               f'\t\t<LinearSolverParameters\n' \
+                               f'\t\t\tsolverType="fgmres"\n' \
+                               f'\t\t\tpreconditionerType="mgr"\n' \
+                               f'\t\t\tkrylovTol="1.0e-8"/>\n' \
+                               f'\t\t</ReactiveCompositionalMultiphaseOBL>\n' \
+                               f'\t</Solvers>\n\n'
 
     def add_mesh(self):
         if isinstance(self.mesh_data, InternalMeshData):
@@ -161,28 +185,29 @@ class XMLFileGEOSXGenerator:
             cell_element_regions_all += f'\t\t<CellElementRegion\n' \
                                         f'\t\t\tname="{ith_elem_region.name}"\n' \
                                         f'\t\t\tcellBlocks="{{{", ".join([str(ii) for ii in ith_elem_region.region_name])}}}"\n' \
-                                        f'\t\t\tmaterialList="{{rock}}"/>\n'
+                                        f'\t\t\tmaterialList="{{{ith_elem_region.material_list}}}"/>\n'
 
         self.full_model += f'\t<ElementRegions>\n{cell_element_regions_all}\t</ElementRegions>\n\n'
 
-    def add_constitutive(self):
-        self.full_model += f'\t<Constitutive>\n' \
-                           f'\t\t<CompressibleSolidConstantPermeability\n' \
-                           f'\t\t\tname="rock"\n' \
-                           f'\t\t\tsolidModelName="nullSolid"\n' \
-                           f'\t\t\tporosityModelName="rockPorosity"\n' \
-                           f'\t\t\tpermeabilityModelName="rockPerm"/>\n' \
-                           f'\t\t<NullModel\n' \
-                           f'\t\t\tname="nullSolid"/>\n' \
-                           f'\t\t<PressurePorosity\n' \
-                           f'\t\t\tname="rockPorosity"\n' \
-                           f'\t\t\tdefaultReferencePorosity="{self.constitutive_data.ref_poro}"\n' \
-                           f'\t\t\treferencePressure="{self.constitutive_data.ref_pres}"\n' \
-                           f'\t\t\tcompressibility="{self.constitutive_data.compr}"/>\n ' \
-                           f'\t\t<ConstantPermeability\n' \
-                           f'\t\t\tname="rockPerm"\n' \
-                           f'\t\t\tpermeabilityComponents="{{{self.constitutive_data.perm[0]}, {self.constitutive_data.perm[1]}, {self.constitutive_data.perm[2]}}}"/>\n' \
-                           f'\t</Constitutive>\n\n'
+    def add_constitutives(self):
+        constitutives_all = f''
+        for constitutive in self.constitutive_data:
+            constitutives_all += f'\t\t<CompressibleSolidConstantPermeability\n' \
+                               f'\t\t\tname="{constitutive.name}"\n' \
+                               f'\t\t\tsolidModelName="{constitutive.name}Solid"\n' \
+                               f'\t\t\tporosityModelName="{constitutive.name}Porosity"\n' \
+                               f'\t\t\tpermeabilityModelName="{constitutive.name}Permeability"/>\n' \
+                               f'\t\t<NullModel\n' \
+                               f'\t\t\tname="{constitutive.name}Solid"/>\n' \
+                               f'\t\t<PressurePorosity\n' \
+                               f'\t\t\tname="{constitutive.name}Porosity"\n' \
+                               f'\t\t\tdefaultReferencePorosity="{constitutive.ref_poro}"\n' \
+                               f'\t\t\treferencePressure="{constitutive.ref_pres}"\n' \
+                               f'\t\t\tcompressibility="{constitutive.compr}"/>\n ' \
+                               f'\t\t<ConstantPermeability\n' \
+                               f'\t\t\tname="{constitutive.name}Permeability"\n' \
+                               f'\t\t\tpermeabilityComponents="{{{constitutive.perm[0]}, {constitutive.perm[1]}, {constitutive.perm[2]}}}"/>\n'
+        self.full_model += f'\t<Constitutive>\n{constitutives_all}\t</Constitutive>\n\n'
 
     def add_field_specifications(self):
         base_field_specifications = lambda rock_params, init_cond, bound_cond, perm_poro, source_data_all: \
@@ -232,13 +257,13 @@ class XMLFileGEOSXGenerator:
         bound_cond_all = f''
         for bound_cond in self.boundary_condition_data:
             bound_cond_all += f'\t\t<FieldSpecification\n' \
-                              f'\t\t\tname="{bound_cond.source_name}Pressure"\n' \
+                              f'\t\t\tname="{bound_cond.source_name}{bound_cond.region_name}Pressure"\n' \
                               f'\t\t\tobjectPath="ElementRegions/{bound_cond.region_name}"\n' \
                               f'\t\t\tfieldName="pressure"\n' \
                               f'\t\t\tscale="{bound_cond.pres_val}"\n' \
                               f'\t\t\tsetNames="{{ {bound_cond.source_name} }}"/>\n' \
                               f'\t\t<FieldSpecification\n' \
-                              f'\t\t\tname="{bound_cond.source_name}TermTemp"\n' \
+                              f'\t\t\tname="{bound_cond.source_name}{bound_cond.region_name}Temperature"\n' \
                               f'\t\t\tsetNames="{{ {bound_cond.source_name} }}"\n' \
                               f'\t\t\tobjectPath="ElementRegions/{bound_cond.region_name}"\n' \
                               f'\t\t\tfieldName="temperature"\n' \
@@ -246,7 +271,7 @@ class XMLFileGEOSXGenerator:
 
             for i in range(self.solvers_data.num_comp):
                 bound_cond_all += f'\t\t<FieldSpecification\n' \
-                                  f'\t\t\tname="{bound_cond.source_name}{bound_cond.comp_name[i]}"\n' \
+                                  f'\t\t\tname="{bound_cond.source_name}{bound_cond.region_name}{bound_cond.comp_name[i]}"\n' \
                                   f'\t\t\tsetNames="{{ {bound_cond.source_name} }}"\n' \
                                   f'\t\t\tobjectPath="ElementRegions/{bound_cond.region_name}"\n' \
                                   f'\t\t\tfieldName="globalCompFraction"\n' \
@@ -305,7 +330,7 @@ class XMLFileGEOSXGenerator:
 class SolversData:
     def __init__(self, num_comp, num_phases, log_level=1, energy_balance=0, max_comp_frac_change=1,
                  trans_mult_exp=3, time_step_cut_fac=0.5, newton_tolerance=1e-4, newton_max_iters=25,
-                 direct_parallel=0, use_darts_norm=0):
+                 direct_parallel=0, use_darts_norm=0, solver_type='direct'):
         self.num_comp = num_comp
         self.num_phases = num_phases
         self.log_level = log_level
@@ -317,6 +342,7 @@ class SolversData:
         self.newton_max_iters = newton_max_iters
         self.direct_parallel = direct_parallel
         self.use_darts_norm = use_darts_norm
+        self.solver_type = solver_type
 
 class VTKMeshData:
     def __init__(self, name_mesh, name_vtu_file, name_tag='CellEntityIds'):
@@ -370,12 +396,12 @@ class EventsData:
 
 
 class ConstitutiveData:
-    def __init__(self, ref_poro=1.0, ref_pres=0.0, compr=1.0e-7, perm=(3.7e-12, 3.7e-12, 3.7e-13)):
+    def __init__(self, ref_poro=1.0, ref_pres=0.0, compr=1.0e-7, perm=(3.7e-12, 3.7e-12, 3.7e-13), name='rock'):
         self.ref_poro = ref_poro
         self.ref_pres = ref_pres
         self.compr = compr
         self.perm = perm
-
+        self.name = name
 
 class InitialConditionData:
     def __init__(self, pres_val, temp_val, comp_val, comp_name, region_name):
